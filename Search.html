@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Page</title>
+    <link rel="stylesheet" href="styles2.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header-search-container">
+            <img src="logo.png" alt="Tesodev Logo" class="logo">
+            <div class="search-bar">
+                <input type="text" placeholder="Search" id="searchInput">
+                <button onclick="performSearch()">Search</button>
+                <button onclick="window.location.href='Add.html'">Add new record</button>
+            </div>
+            <div class="order-by">
+                <label for="order">Order By:</label>
+                <select id="order" onchange="performSearch()">
+                    <option value="name_asc">Name ascending</option>
+                    <option value="name_desc">Name descending</option>
+                    <option value="year_asc">Year ascending</option>
+                    <option value="year_desc">Year descending</option>
+                </select>
+            </div>
+        </div>
+        <div class="results" id="results">
+            <!-- Search results will be inserted here -->
+        </div>
+        <div class="pagination" id="pagination">
+            <button id="prevPage" onclick="changePage(-1)">Previous</button>
+            <span id="pageEllipsisStart" class="ellipsis">...</span>
+            <span id="pageEllipsisEnd" class="ellipsis">...</span>
+            <button id="nextPage" onclick="changePage(1)">Next</button>
+        </div>
+    </div>
+    <script src="search.js"></script>
+</body>
+</html>

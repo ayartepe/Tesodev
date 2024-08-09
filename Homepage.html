@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <button class="add-button" onclick="window.location.href='Add.html'">Add new record</button>
+    <div class="header">
+        <div class="search-section">
+            <img src="logo.png" alt="Tesodev Logo" class="logo3">
+            <h2>Find in records</h2>
+            <form id="searchForm" class="search-form" onsubmit="return false;">
+                <input type="text" id="searchQuery" placeholder="Search..." oninput="performSearch()">
+                <button type="submit">Search</button>
+            </form>
+            <div id="results" class="results search-results">
+               
+            </div>
+            <div class="show-more" id="showMore" onclick="redirectToSearch()">Show more...</div>
+        </div>
+    </div>
+    <div class="news-section">
+        <h2>Top News</h2>
+        <div class="news-slider-wrapper">
+            <button class="news-slider-button prev" onclick="slideNews(-1)">&#10094;</button>
+            <div class="news-slider" id="newsSlider">
+                
+            </div>
+            <button class="news-slider-button next" onclick="slideNews(1)">&#10095;</button>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="contact-info">
+            <p>Adres: Çifte Havuzlar Mah. Eski Londra Asfaltı Cad. Kuluçka Merkezi D2 Blok No: 151/1F İç Kapı No: 2803 Esenler/İstanbul</p>
+            <p>İletişim: bilgi@tesodev.com</p>
+        </div>
+        <div class="map">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d306.41596569771546!2d28.8907195!3d41.0191116!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cabb3ebbb0f629%3A0x0!2zNDHCsDAxJzA4LjgiTiAyOMKwNTMnMjYuNiJF!5e0!3m2!1sen!2str!4v1691251562736!5m2!1sen!2str" width="700" height="200" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script src="search.js"></script>
+    <script>
+        const newsItems = [
+            {
+                title: "A Plan to Rebuild the Bus Terminal Everyone Loves to Hate",
+                image: "image1.jpg",
+                author: "Troy Corlson",
+                time: "1h ago"
+            },
+            {
+                title: "Second News Title",
+                image: "image2.jpg",
+                author: "John Doe",
+                time: "2h ago"
+            },
+            {
+                title: "Third News Title",
+                image: "image3.jpg",
+                author: "Jane Smith",
+                time: "3h ago"
+            },
+            {
+                title: "Fourth News Title",
+                image: "image4.jpg",
+                author: "Emily Johnson",
+                time: "4h ago"
+            }
+        ];
+
+        let currentSlide = 0;
+
+        function displayNews() {
+            const newsSlider = document.getElementById('newsSlider');
+            newsSlider.innerHTML = '';
+            for (let i = 0; i < newsItems.length; i++) {
+                const newsItem = document.createElement('div');
+                newsItem.className = 'news-item';
+                newsItem.innerHTML = `
+                    <img src="${newsItems[i].image}" alt="${newsItems[i].title}">
+                    <p>${newsItems[i].title}</p>
+                    <p>${newsItems[i].author} - ${newsItems[i].time}</p>
+                `;
+                newsSlider.appendChild(newsItem);
+            }
+        }
+
+        function slideNews(direction) {
+            const newsSlider = document.getElementById('newsSlider');
+            const totalItems = newsItems.length;
+            const visibleItems = 3; 
+            const maxSlide = totalItems - visibleItems;
+
+            currentSlide = Math.min(Math.max(currentSlide + direction, 0), maxSlide);
+            const translateX = -currentSlide * (100 / visibleItems);
+            newsSlider.style.transform = `translateX(${translateX}%)`;
+        }
+
+        displayNews();
+
+        let allData = [];
+
+        async function fetchData() {
+            const response = await fetch('mock-data.json');
+            const jsonData = await response.json();
+            const localData = JSON.parse(localStorage.getItem('mockData')) || [];
+
+            const serverData = jsonData.data.map(item => {
+                return {
+                    id: item[0],
+                    nameSurname: item[1],
+                    company: item[2],
+                    email: item[3],
+                    phone: item[4],
+                    website: item[5],
+                    country: item[6],
+                    city: item[7],
+                    date: item[8]
+                };
+            });
+
+            allData = serverData.concat(localData);
+        }
+
+        function performSearch() {
+            let query = document.getElementById('searchQuery').value.trim().toLowerCase();
+            const resultsContainer = document.getElementById('results');
+            const showMore = document.getElementById('showMore');
+        
+            // If the search query is less than 2 characters, clear results and hide "Show more" button
+            if (query.length < 2) {
+                resultsContainer.innerHTML = '';
+                showMore.style.display = 'none';
+                return;
+            }
+        
+            const filteredResults = allData.filter(item => 
+                item.nameSurname.toLowerCase().includes(query) ||
+                item.country.toLowerCase().includes(query) ||
+                item.city.toLowerCase().includes(query)
+            ).slice(0, 3); 
+        
+            resultsContainer.innerHTML = '';
+            filteredResults.forEach(item => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'search-result-item';
+                resultItem.innerText = `${item.nameSurname} - ${item.city}, ${item.country}`;
+                resultsContainer.appendChild(resultItem);
+            });
+        
+            showMore.style.display = filteredResults.length > 0 ? 'block' : 'none';
+        }
+        
+        function handleFormSubmit(event) {
+            event.preventDefault(); // Prevent the default form submission
+            let query = document.getElementById('searchQuery').value.trim();
+            
+            // Navigate to the search page with the query as a URL parameter
+            if (query.length >= 2) {
+                window.location.href = `Search.html?query=${encodeURIComponent(query)}`;
+            }
+        }
+        
+        document.getElementById('searchQuery').addEventListener('input', performSearch);
+        document.getElementById('searchForm').addEventListener('submit', handleFormSubmit);
+
+        function redirectToSearch() {
+            const query = document.getElementById('searchQuery').value;
+            window.location.href = `Search.html?query=${encodeURIComponent(query)}`;
+        }
+
+        fetchData(); 
+    </script>
+</body>
+
+</html>
